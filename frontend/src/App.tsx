@@ -7,8 +7,8 @@ import Register from "./containers/Register/Register";
 import AutoLogout from "./components/AutoLogout/AutoLogout";
 
 export enum Paths {
-  LOGIN = "/",
-  HOME = "/home",
+  LOGIN = "/login",
+  HOME = "/",
   SIGNUP = "/signup",
   REGISTER = "/register",
   NOTFOUND = "/404",

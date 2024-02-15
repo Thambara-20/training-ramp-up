@@ -7,7 +7,7 @@ export const sendSignupEmail = async (
   name: string,
   tempToken: string
 ) => {
-  const signupLink = `${process.env.FRONT_END_URL}?token=${tempToken}`;
+  const signupLink = `${process.env.FRONT_END_URL_SIGNUP}?token=${tempToken}`;
 
   const transporter = nodemailer.createTransport({
     service: "gmail",

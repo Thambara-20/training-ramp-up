@@ -18,19 +18,31 @@ export class UserController {
 
     try {
       const user = await this.userService.findByEmail(email);
-      console.log("user", user);
       if (!user || !(await user.comparePassword(password))) {
         res.status(401).json({ error: "Invalid email or password" });
         return;
       }
 
-      const token = jwt.sign({ email, role: user.role }, SECRET_KEY, {
+      const accessToken = jwt.sign({ email, role: user.role }, SECRET_KEY, {
         expiresIn: "5h",
       });
+
+      const refreshToken = jwt.sign({ email }, SECRET_KEY, {
+        expiresIn: "7d",
+      });
+
       res
-        .cookie("token", token, {
+        .cookie("accessToken", accessToken, {
           httpOnly: true,
-          maxAge: 1000 * 60 * 60 * 5,
+          domain: ".lbmsalpha.live",
+          secure: true,
+          maxAge: 1000 * 60,
+        })
+        .cookie("refreshToken", refreshToken, {
+          httpOnly: true,
+          domain: ".lbmsalpha.live",
+          secure: true,
+          maxAge: 1000 * 60 * 60 * 24 * 7,
         })
         .status(200)
         .json({ role: user.role });
@@ -91,6 +103,7 @@ export class UserController {
 
   async create(req: Request, res: Response) {
     const { password, token } = req.body;
+    console.log("token", token, "password", password);
     try {
       const decodedToken: any = jwt.verify(token, SECRET_KEY);
       const curr_user = await this.userService.findByEmail(decodedToken.email);
@@ -139,15 +152,65 @@ export class UserController {
 
   async logout(req: any, res: any) {
     try {
-      res.clearCookie('token', {
-        httpOnly: true,
-      }).status(200).json({ message: "User logged out successfully"});
+      res
+        .clearCookie("accessToken", {
+          httpOnly: true,
+          domain: ".lbmsalpha.live",
+          secure: true,
+        })
+        .clearCookie("refreshToken", {
+          httpOnly: true,
+          domain: ".lbmsalpha.live",
+          secure: true,
+        })
+        .status(200)
+        .json({ message: "User logged out successfully" });
       console.log("logout");
     } catch (error) {
       res.status(500).json({ error: "Internal Server Error" });
     }
   }
 
+  async refreshToken(req: Request, res: Response) {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      res.status(401).json({ error: "Access denied. Token not provided." });
+      return;
+    }
+
+    jwt.verify(refreshToken, SECRET_KEY, async (err: any, payload: any) => {
+      if (err) {
+        res.status(403).json({ error: "Invalid token." });
+        return;
+      }
+
+      const user = await this.userService.findByEmail(payload.email);
+
+      if (!user) {
+        res.status(403).json({ error: "Invalid token." });
+        return;
+      }
+
+      const accessToken = jwt.sign(
+        { email: user.email, role: user.role },
+        SECRET_KEY,
+        {
+          expiresIn: "5h",
+        }
+      );
+
+      res
+        .cookie("accessToken", accessToken, {
+          httpOnly: true,
+          domain: ".lbmsalpha.live",
+          secure: true,
+          maxAge: 1000 * 60,
+        })
+        .status(200)
+        .json({ role: user.role });
+    });
+  }
   async verify(req: any, res: Response) {
     res
       .status(200)

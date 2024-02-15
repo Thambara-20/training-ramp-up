@@ -80,6 +80,13 @@ export const Routes = [
   },
   {
     method: "post",
+    route: "/users/refreshtoken",
+    controller: UserController,
+    action: "refreshToken",
+    middleware: [],
+  },
+  {
+    method: "post",
     route: "/users/logout",
     controller: UserController,
     action: "logout",

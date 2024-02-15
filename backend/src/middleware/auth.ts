@@ -5,7 +5,7 @@ const SECRET_KEY = process.env.SECRET_KEY || "default-secret-key";
 
 export const authenticateToken = (req, res: Response, next: NextFunction) => {
 
-  const token = req.cookies.token;
+  const token = req.cookies.accessToken;
   if (!token) {
     res.status(401).json({ error: "Access denied. Token not provided." });
     return;
