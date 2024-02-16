@@ -24,7 +24,7 @@ export class UserController {
       }
 
       const accessToken = jwt.sign({ email, role: user.role }, SECRET_KEY, {
-        expiresIn: "5h",
+        expiresIn: "1h",
       });
 
       const refreshToken = jwt.sign({ email }, SECRET_KEY, {
@@ -36,7 +36,7 @@ export class UserController {
           httpOnly: true,
           domain: ".lbmsalpha.live",
           secure: true,
-          maxAge: 1000 * 60,
+          maxAge: 1000 * 60 * 60 ,
         })
         .cookie("refreshToken", refreshToken, {
           httpOnly: true,
