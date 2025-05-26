@@ -1,10 +1,10 @@
-import * as express from "express";
-import * as bodyParser from "body-parser";
+import express from "express";
+import bodyParser from "body-parser";
 import { AppDataSource } from "./config/data-source";
 import { Routes } from "./routes/routes";
-import cors = require("cors");
+import cors from "cors";
 import { createServer } from "http";
-import * as cookieParser from "cookie-parser";
+import cookieParser from "cookie-parser";
 
 import { initializeSocketIO } from "../src/services/socketService";
 
